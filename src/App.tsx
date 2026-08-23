@@ -1,12 +1,19 @@
 import { useState } from 'react';
+import { CodeEditor } from './editor/CodeEditor';
+import { languageForPath } from './editor/language';
 import { FileExplorer } from './files/FileExplorer';
 import { chooseWorkspace, type Workspace } from './workspace/workspace';
 import { selectWorkspaceDirectory } from './workspace/selectWorkspaceDirectory';
-import { readWorkspaceTextFile, setWorkspaceRoot } from './workspace/workspaceApi';
+import {
+  readWorkspaceTextFile,
+  setWorkspaceRoot,
+  writeWorkspaceTextFile,
+} from './workspace/workspaceApi';
 
 interface OpenFile {
   relativePath: string;
   content: string;
+  savedContent: string;
 }
 
 function errorMessage(error: unknown): string {
@@ -21,6 +28,8 @@ export function App() {
   const [openFile, setOpenFile] = useState<OpenFile | null>(null);
   const [fileLoading, setFileLoading] = useState(false);
   const [fileError, setFileError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const openWorkspace = async () => {
     if (opening) return;
@@ -37,6 +46,8 @@ export function App() {
       setSelectedPath(null);
       setOpenFile(null);
       setFileError(null);
+      setSaveError(null);
+      setSaving(false);
     } catch (error) {
       setWorkspaceError(errorMessage(error));
     } finally {
@@ -48,15 +59,43 @@ export function App() {
     setSelectedPath(relativePath);
     setFileLoading(true);
     setFileError(null);
+    setSaveError(null);
     setOpenFile(null);
 
     try {
       const content = await readWorkspaceTextFile(relativePath);
-      setOpenFile({ relativePath, content });
+      setOpenFile({ relativePath, content, savedContent: content });
     } catch (error) {
       setFileError(errorMessage(error));
     } finally {
       setFileLoading(false);
+    }
+  };
+
+  const updateOpenFileContent = (content: string) => {
+    setOpenFile((current) => (current ? { ...current, content } : current));
+  };
+
+  const saveOpenFile = async (contentOverride?: string) => {
+    if (!openFile || saving) return;
+
+    const relativePath = openFile.relativePath;
+    const content = contentOverride ?? openFile.content;
+    if (content === openFile.savedContent) return;
+
+    setSaving(true);
+    setSaveError(null);
+
+    try {
+      await writeWorkspaceTextFile(relativePath, content);
+      setOpenFile((current) => {
+        if (!current || current.relativePath !== relativePath) return current;
+        return { ...current, content, savedContent: content };
+      });
+    } catch (error) {
+      setSaveError(errorMessage(error));
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -79,6 +118,9 @@ export function App() {
       </main>
     );
   }
+
+  const fileDirty = openFile ? openFile.content !== openFile.savedContent : false;
+  const openFileLanguage = openFile ? languageForPath(openFile.relativePath) : null;
 
   return (
     <main className="app-shell">
@@ -127,12 +169,32 @@ export function App() {
                 <p>{fileError}</p>
               </div>
             ) : openFile ? (
-              <section className="file-viewer">
+              <section className="file-editor">
                 <header className="file-viewer-header">
-                  <span>{openFile.relativePath}</span>
-                  <span className="file-viewer-mode">Read only</span>
+                  <div className="file-editor-title">
+                    <span>{openFile.relativePath}</span>
+                    {fileDirty ? <span className="dirty-indicator" title="Unsaved changes">●</span> : null}
+                  </div>
+                  <div className="file-editor-actions">
+                    <span className="file-language">{openFileLanguage}</span>
+                    <button
+                      className="editor-save-button"
+                      type="button"
+                      disabled={!fileDirty || saving}
+                      onClick={() => void saveOpenFile()}
+                    >
+                      {saving ? 'Saving…' : 'Save'}
+                    </button>
+                  </div>
                 </header>
-                <pre className="file-viewer-content"><code>{openFile.content}</code></pre>
+                {saveError ? <div className="file-save-error">{saveError}</div> : null}
+                <CodeEditor
+                  key={openFile.relativePath}
+                  relativePath={openFile.relativePath}
+                  initialValue={openFile.content}
+                  onContentChange={updateOpenFileContent}
+                  onSave={saveOpenFile}
+                />
               </section>
             ) : (
               <div className="workspace-ready">
@@ -140,8 +202,8 @@ export function App() {
                 <h2>{workspace.name}</h2>
                 <code>{workspace.rootPath}</code>
                 <p>
-                  Browse the real workspace tree on the left and open a UTF-8 text file.
-                  Editing arrives in the next M0 slice.
+                  Browse the workspace tree and open a UTF-8 text file. Monaco now handles
+                  syntax highlighting, lightweight editing and save inside Pane.
                 </p>
               </div>
             )}
