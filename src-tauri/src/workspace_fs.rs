@@ -170,6 +170,32 @@ pub fn read_workspace_text_file(
     String::from_utf8(bytes).map_err(|_| "file is not valid UTF-8 text".to_string())
 }
 
+#[tauri::command]
+pub fn write_workspace_text_file(
+    relative_path: String,
+    content: String,
+    state: State<'_, WorkspaceFsState>,
+) -> Result<(), String> {
+    if content.len() as u64 > MAX_TEXT_FILE_BYTES {
+        return Err(format!(
+            "file is too large to save in M0 (limit: {} MiB)",
+            MAX_TEXT_FILE_BYTES / 1024 / 1024
+        ));
+    }
+
+    let root = active_root(&state)?;
+    let path = resolve_existing(&root, &relative_path)?;
+    let metadata = fs::metadata(&path)
+        .map_err(|error| format!("failed to inspect workspace file: {error}"))?;
+
+    if !metadata.is_file() {
+        return Err("requested workspace path is not a file".into());
+    }
+
+    fs::write(&path, content.as_bytes())
+        .map_err(|error| format!("failed to save workspace file: {error}"))
+}
+
 #[cfg(test)]
 mod tests {
     use super::safe_relative_path;
