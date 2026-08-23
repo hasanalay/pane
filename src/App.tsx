@@ -91,7 +91,7 @@ export function App() {
       await writeWorkspaceTextFile(relativePath, content);
       setOpenFile((current) => {
         if (!current || current.relativePath !== relativePath) return current;
-        return { ...current, content, savedContent: content };
+        return { ...current, savedContent: content };
       });
     } catch (error) {
       setSaveError(errorMessage(error));
