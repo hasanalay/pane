@@ -27,7 +27,8 @@ export function CodeEditor({
     const container = containerRef.current;
     if (!container) return;
 
-    const modelUri = monaco.Uri.parse(`inmemory://pane/${encodeURIComponent(relativePath)}`);
+    const normalizedPath = relativePath.replaceAll('\\', '/');
+    const modelUri = monaco.Uri.from({ scheme: 'file', path: `/${normalizedPath}` });
     monaco.editor.getModel(modelUri)?.dispose();
 
     const model = monaco.editor.createModel(
@@ -48,7 +49,7 @@ export function CodeEditor({
       wordWrap: 'off',
       renderWhitespace: 'selection',
       padding: { top: 12, bottom: 12 },
-      tabSize: 2,
+      detectIndentation: true,
     });
 
     const contentSubscription = editor.onDidChangeModelContent(() => {
