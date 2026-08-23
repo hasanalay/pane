@@ -82,6 +82,27 @@ Initial implementation direction:
 
 Native capabilities such as PTY/process lifecycle, filesystem access and port discovery belong behind a narrow Rust/Tauri boundary. React owns workspace presentation and interaction state.
 
+## Development
+
+The first application scaffold now lives in the repository. On macOS with Node.js 22+ and Rust installed:
+
+```sh
+npm install
+npm test
+npm run typecheck
+npm run tauri:dev
+```
+
+Current implemented slice:
+
+```text
+Launch Pane → Open Folder → selected path becomes the active workspace root
+```
+
+The file explorer, PTY terminal, Changes/diff, server discovery and integrated browser are deliberately subsequent M0 tasks rather than mocked features in the scaffold.
+
+Dependency lockfiles will be committed after the first successful networked install/build resolves the npm and Cargo graphs.
+
 ## Source of truth
 
 - [`docs/product/PRODUCT_DEFINITION_v0.2.md`](docs/product/PRODUCT_DEFINITION_v0.2.md) — current product definition
