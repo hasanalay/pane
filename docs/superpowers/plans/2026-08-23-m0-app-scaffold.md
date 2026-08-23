@@ -6,7 +6,7 @@
 
 **Architecture:** Start from a clean Tauri v2 application owned by Pane. React + TypeScript renders the workspace shell; Rust/Tauri owns native application authority. Folder selection uses the Tauri dialog plugin behind a small injected workspace service so the product behavior is testable without coupling tests to Tauri.
 
-**Tech Stack:** Tauri v2, Rust, React, TypeScript, Vite, Vitest.
+**Tech Stack:** Tauri v2, Rust, React, TypeScript, Vite, Node test runner.
 
 **Spec:** `docs/product/M0_LOCAL_AGENT_WORKSPACE.md`
 
@@ -23,9 +23,9 @@
 ### Task 1: Bootstrap Pane desktop shell and Open Folder workspace slice
 
 **Files:**
-- Create: `package.json`, `package-lock.json`, `index.html`, `vite.config.ts`, TypeScript configs
+- Create: `package.json`, `index.html`, `vite.config.ts`, `tsconfig.json`
 - Create: `src/main.tsx`, `src/App.tsx`, `src/styles.css`
-- Create: `src/workspace/workspace.ts`, `src/workspace/workspace.test.ts`
+- Create: `src/workspace/workspace.ts`, `src/workspace/workspace.test.ts`, `src/workspace/selectWorkspaceDirectory.ts`
 - Create: `src-tauri/Cargo.toml`, `src-tauri/build.rs`, `src-tauri/src/main.rs`, `src-tauri/src/lib.rs`, `src-tauri/tauri.conf.json`, `src-tauri/capabilities/default.json`
 - Create: `.gitignore`
 
@@ -34,58 +34,48 @@
 - Produces: `chooseWorkspace(selectDirectory: () => Promise<string | null>): Promise<Workspace | null>`
 - Produces: `selectWorkspaceDirectory(): Promise<string | null>` Tauri adapter used by the UI.
 
-- [ ] **Step 1: Bootstrap only the test/tooling scaffold**
+- [x] **Step 1: Bootstrap only the test/tooling scaffold**
 
-Add Vite/React/TypeScript/Vitest/Tauri configuration and dependency metadata. No workspace behavior yet.
+Add Vite/React/TypeScript/Tauri configuration and dependency metadata. The lockfile is intentionally generated on the first networked `npm install` because the execution host used for this implementation cannot reach the npm registry.
 
-- [ ] **Step 2: RED — prove the workspace service API does not exist yet**
+- [x] **Step 2: RED — prove the workspace service API does not exist yet**
 
-Write a Vitest test that dynamically imports `workspace.ts` and converts a missing module/export into an assertion failure rather than a loader error.
+A Node test dynamically imported the planned workspace module and converted the missing module/export into an assertion failure. The test failed with `actual: undefined`, `expected: function` before production behavior existed.
 
-Run: `npm test -- --run`
-Expected: FAIL because `chooseWorkspace` does not exist.
+- [x] **Step 3: GREEN — add the smallest workspace service surface**
 
-- [ ] **Step 3: GREEN — add the smallest workspace service surface**
+Added only the `chooseWorkspace` export returning `null`. The API-existence test passed.
 
-Create the service export so the API-existence test passes without implementing folder-selection behavior.
+- [x] **Step 4: RED — define Open Folder behavior**
 
-Run: `npm test -- --run`
-Expected: PASS.
-
-- [ ] **Step 4: RED — define Open Folder behavior**
-
-Add tests proving:
+Added tests proving:
 - selecting `/Users/dev/example-project` returns `{ rootPath, name: "example-project" }`;
 - canceling the native picker returns `null`;
 - trailing separators do not produce an empty workspace name.
 
-Run: `npm test -- --run`
-Expected: FAIL on behavior.
+The behavior run failed 2/3 tests against the stub, as expected.
 
-- [ ] **Step 5: GREEN — implement the minimal workspace behavior**
+- [x] **Step 5: GREEN — implement the minimal workspace behavior**
 
-Implement `chooseWorkspace` and keep path-to-name derivation independent from Tauri.
+Implemented `chooseWorkspace` independently from Tauri. The behavior run passed 3/3 tests using Node's test runner with TypeScript type stripping.
 
-Run: `npm test -- --run`
-Expected: all workspace tests PASS.
-
-- [ ] **Step 6: Wire the Tauri folder picker and workspace shell**
+- [x] **Step 6: Wire the Tauri folder picker and workspace shell**
 
 Use `@tauri-apps/plugin-dialog` to select one directory. The initial UI has an empty state with **Open Folder**; after selection it shows the workspace name/path and placeholder regions for Files, Changes, main content, and Terminal without implementing those later capabilities.
 
-- [ ] **Step 7: Verify frontend quality gates**
+- [ ] **Step 7: Verify frontend quality gates on a networked development host**
 
-Run:
-- `npm test -- --run`
+Run after `npm install`:
+- `npm test`
 - `npm run typecheck`
 - `npm run build`
 
-Expected: all commands exit 0.
+The current execution host cannot fetch npm dependencies, so these full dependency-backed gates are not claimed here.
 
-- [ ] **Step 8: Verify Rust/Tauri metadata as far as the execution host permits**
+- [ ] **Step 8: Verify Rust/Tauri metadata on a Rust-enabled host**
 
-Run `cargo check --manifest-path src-tauri/Cargo.toml` when required system libraries are available. If the host lacks Tauri platform dependencies, record that limitation rather than claiming a native build pass.
+Run `cargo check --manifest-path src-tauri/Cargo.toml`. The current execution host does not provide `rustc`/`cargo`, so a native build pass is not claimed here.
 
-- [ ] **Step 9: Commit**
+- [ ] **Step 9: Generate and commit dependency locks after the first successful host build**
 
-Commit message: `feat: bootstrap Pane M0 workspace shell`
+Commit the generated `package-lock.json` and `src-tauri/Cargo.lock` after the first networked `npm install` / Cargo resolution.
