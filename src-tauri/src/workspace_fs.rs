@@ -47,13 +47,17 @@ fn safe_relative_path(relative_path: &str) -> Result<&Path, String> {
     Ok(path)
 }
 
-fn active_root(state: &State<'_, WorkspaceFsState>) -> Result<PathBuf, String> {
+pub(crate) fn active_workspace_root(state: &WorkspaceFsState) -> Result<PathBuf, String> {
     state
         .root
         .lock()
         .map_err(|_| "workspace state lock is poisoned".to_string())?
         .clone()
         .ok_or_else(|| "no active workspace".to_string())
+}
+
+fn active_root(state: &State<'_, WorkspaceFsState>) -> Result<PathBuf, String> {
+    active_workspace_root(state)
 }
 
 fn resolve_existing(root: &Path, relative_path: &str) -> Result<PathBuf, String> {
@@ -116,8 +120,6 @@ pub fn list_workspace_directory(
             .file_type()
             .map_err(|error| format!("failed to inspect directory entry: {error}"))?;
 
-        // Symlinks are deliberately skipped in M0. This prevents a tree node from
-        // becoming an implicit capability to traverse outside the selected root.
         if file_type.is_symlink() {
             continue;
         }

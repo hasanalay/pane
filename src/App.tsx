@@ -3,6 +3,7 @@ import { CodeEditor } from './editor/CodeEditor';
 import './editor/editor.css';
 import { languageForPath } from './editor/language';
 import { FileExplorer } from './files/FileExplorer';
+import { TerminalPane } from './terminal/TerminalPane';
 import { chooseWorkspace, type Workspace } from './workspace/workspace';
 import { selectWorkspaceDirectory } from './workspace/selectWorkspaceDirectory';
 import {
@@ -203,16 +204,13 @@ export function App() {
                 <h2>{workspace.name}</h2>
                 <code>{workspace.rootPath}</code>
                 <p>
-                  Browse the workspace tree and open a UTF-8 text file. Monaco now handles
-                  syntax highlighting, lightweight editing and save inside Pane.
+                  Browse the workspace tree, edit files with Monaco, or work in the
+                  PTY terminal below without leaving Pane.
                 </p>
               </div>
             )}
           </div>
-          <div className="terminal-placeholder">
-            <span>Terminal</span>
-            <small>PTY implementation is intentionally next, not mocked here.</small>
-          </div>
+          <TerminalPane key={workspace.rootPath} workspaceRoot={workspace.rootPath} />
         </section>
       </div>
     </main>

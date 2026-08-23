@@ -1,0 +1,65 @@
+.terminal-pane {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid #25272a;
+  background: #0b0c0e;
+}
+
+.terminal-header {
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 12px;
+  border-bottom: 1px solid #1f2124;
+  color: #c7c9c6;
+  background: #101113;
+  font-size: 11px;
+}
+
+.terminal-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+}
+
+.terminal-status,
+.terminal-shell {
+  color: #6f747a;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.terminal-status-running {
+  color: #7fa483;
+}
+
+.terminal-status-error {
+  color: #c98686;
+}
+
+.terminal-status-exited {
+  color: #9b8c68;
+}
+
+.terminal-xterm {
+  min-width: 0;
+  min-height: 0;
+  flex: 1;
+  overflow: hidden;
+  padding: 8px 10px 6px;
+}
+
+.terminal-xterm .xterm {
+  height: 100%;
+}
+
+.terminal-xterm .xterm-viewport {
+  scrollbar-width: thin;
+}

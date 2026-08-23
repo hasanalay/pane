@@ -45,12 +45,29 @@ Expected:
 - reopening the file shows the saved content;
 - unknown extensions safely fall back to plaintext.
 
+## PTY terminal + Codex
+
+1. Open a real repository as the workspace.
+2. In the Pane terminal run `pwd` and confirm it equals the selected workspace root.
+3. Run `git status` and confirm it targets the selected repository.
+4. Resize the Pane window and confirm the shell prompt/TUI reflows rather than corrupting.
+5. Run `codex`.
+6. Confirm the Codex TUI renders inside Pane and accepts keyboard input.
+7. Submit a harmless prompt such as `Summarize this repository without changing files.`
+8. Confirm `Ctrl+C`, arrow keys, Enter and normal text input behave like Terminal.app.
+9. Exit Codex and confirm the shell remains usable.
+
+Expected:
+- the terminal is backed by a real PTY, not a pipe-based command runner;
+- shell cwd is the active workspace root;
+- ANSI colors and full-screen TUI output render correctly;
+- terminal output remains readable if the shell/session exits;
+- changing workspace replaces the old terminal session and cleans it up.
+
 ## Current M0 checks to add as features land
 
 The following sections become active when their implementation reaches `dev`:
 
-- PTY terminal starts in the workspace root;
-- `codex` runs interactively inside Pane;
 - Git changes appear under **Changes** and open as diffs;
 - `npm run dev` / `pnpm dev` listeners are discovered automatically;
 - discovered servers appear under **Servers**;
