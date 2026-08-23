@@ -17,3 +17,10 @@ export async function listWorkspaceDirectory(relativePath = ''): Promise<Workspa
 export async function readWorkspaceTextFile(relativePath: string): Promise<string> {
   return invoke<string>('read_workspace_text_file', { relativePath });
 }
+
+export async function writeWorkspaceTextFile(
+  relativePath: string,
+  content: string,
+): Promise<void> {
+  await invoke('write_workspace_text_file', { relativePath, content });
+}
