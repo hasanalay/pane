@@ -6,6 +6,7 @@ failures=0
 pass() { printf 'PASS  %s\n' "$1"; }
 fail() { printf 'FAIL  %s\n' "$1"; failures=$((failures + 1)); }
 info() { printf 'INFO  %s\n' "$1"; }
+warn() { printf 'WARN  %s\n' "$1"; }
 
 if [ "$(uname -s)" = "Darwin" ]; then
   pass "macOS detected ($(sw_vers -productVersion 2>/dev/null || echo unknown), $(uname -m))"
@@ -52,7 +53,12 @@ if command -v git >/dev/null 2>&1; then
   info "$(git --version)"
 fi
 if command -v npm >/dev/null 2>&1; then
-  info "npm $(npm --version)"
+  npm_version="$(npm --version)"
+  npm_major="${npm_version%%.*}"
+  info "npm $npm_version"
+  if [ "$npm_major" -ge 12 ] 2>/dev/null; then
+    warn "npm 12+ defaults allow-remote=none. Pinned Canopy has a direct SheetJS tarball URL dependency; use 'npm install --allow-remote=root' for this validation and record vanilla 'npm install' as a toolchain compatibility failure."
+  fi
 fi
 if command -v codex >/dev/null 2>&1; then
   codex_version="$(codex --version 2>/dev/null || true)"
