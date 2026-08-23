@@ -10,7 +10,8 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             workspace_fs::set_workspace_root,
             workspace_fs::list_workspace_directory,
-            workspace_fs::read_workspace_text_file
+            workspace_fs::read_workspace_text_file,
+            workspace_fs::write_workspace_text_file
         ])
         .run(tauri::generate_context!())
         .expect("error while running Pane");
