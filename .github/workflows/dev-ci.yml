@@ -23,6 +23,21 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Publish pending Dev CI status
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const targetUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: context.sha,
+              state: 'pending',
+              context: 'Dev CI',
+              description: 'Pane dev checks are running',
+              target_url: targetUrl
+            });
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -53,11 +68,13 @@ jobs:
         with:
           script: |
             const state = '${{ job.status }}' === 'success' ? 'success' : 'failure';
+            const targetUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
             await github.rest.repos.createCommitStatus({
               owner: context.repo.owner,
               repo: context.repo.repo,
               sha: context.sha,
               state,
               context: 'Dev CI',
-              description: state === 'success' ? 'Pane dev checks passed' : 'Pane dev checks failed'
+              description: state === 'success' ? 'Pane dev checks passed' : 'Pane dev checks failed',
+              target_url: targetUrl
             });
