@@ -1,0 +1,66 @@
+.file-editor {
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: #0c0d0e;
+}
+
+.file-editor-title,
+.file-editor-actions {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.file-editor-title > span:first-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dirty-indicator {
+  flex: 0 0 auto;
+  color: #b7a36c;
+  font-size: 8px;
+}
+
+.file-language {
+  color: #70757b;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.editor-save-button {
+  padding: 5px 9px;
+  border: 1px solid #303338;
+  border-radius: 7px;
+  color: #d9dad6;
+  background: #191b1e;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.editor-save-button:hover:not(:disabled) {
+  border-color: #41454b;
+  background: #212429;
+}
+
+.file-save-error {
+  padding: 8px 14px;
+  border-bottom: 1px solid #3a2828;
+  color: #df9999;
+  background: #1b1212;
+  font-size: 11px;
+}
+
+.code-editor {
+  min-width: 0;
+  min-height: 0;
+  flex: 1;
+}
