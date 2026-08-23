@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { CodeEditor } from './editor/CodeEditor';
+import './editor/editor.css';
 import { languageForPath } from './editor/language';
 import { FileExplorer } from './files/FileExplorer';
 import { chooseWorkspace, type Workspace } from './workspace/workspace';
