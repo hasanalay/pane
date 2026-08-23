@@ -128,6 +128,13 @@ h2 {
   color: #e6e6e3;
 }
 
+.inline-error {
+  margin: 16px 0 0;
+  color: #e69b9b;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
 .app-shell {
   min-height: 100vh;
   display: flex;
@@ -145,11 +152,21 @@ h2 {
   background: #111214;
 }
 
-.brand-row {
+.brand-row,
+.topbar-actions {
   display: flex;
   align-items: center;
   gap: 9px;
   min-width: 0;
+}
+
+.topbar-error {
+  max-width: 420px;
+  overflow: hidden;
+  color: #d99595;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .workspace-separator,
@@ -167,7 +184,7 @@ h2 {
   min-height: 0;
   flex: 1;
   display: grid;
-  grid-template-columns: 248px minmax(0, 1fr);
+  grid-template-columns: 272px minmax(0, 1fr);
 }
 
 .sidebar {
@@ -180,6 +197,14 @@ h2 {
 
 .sidebar-section {
   padding: 16px 12px;
+}
+
+.sidebar-files {
+  min-height: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding-right: 6px;
 }
 
 .sidebar-section-bottom {
@@ -205,6 +230,99 @@ h2 {
   line-height: 1.4;
 }
 
+.file-tree {
+  min-height: 0;
+  flex: 1;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.file-tree-row {
+  width: 100%;
+  min-width: 0;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-top: 0;
+  padding-right: 7px;
+  padding-bottom: 0;
+  border: 0;
+  border-radius: 6px;
+  color: #aeb1b5;
+  background: transparent;
+  text-align: left;
+}
+
+.file-tree-row:hover {
+  color: #e2e3df;
+  background: #181a1d;
+}
+
+.file-tree-row-selected {
+  color: #f1f1ed;
+  background: #202328;
+}
+
+.tree-chevron {
+  width: 10px;
+  flex: 0 0 10px;
+  color: #686d73;
+  font-size: 10px;
+}
+
+.tree-kind {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 7px;
+  border-radius: 2px;
+  background: #646970;
+}
+
+.tree-kind-directory {
+  border-radius: 1px;
+  background: #8a8e94;
+}
+
+.tree-kind-file {
+  width: 5px;
+  height: 5px;
+  flex-basis: 5px;
+  margin: 0 1px;
+  border-radius: 50%;
+  background: #555a60;
+}
+
+.tree-name {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tree-state {
+  color: #6c7177;
+  font-size: 12px;
+}
+
+.tree-error,
+.file-tree-message {
+  color: #777c82;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.tree-error,
+.file-tree-message-error {
+  color: #c98686;
+}
+
+.file-tree-message {
+  padding: 6px 8px;
+}
+
 .content-area {
   min-width: 0;
   min-height: 0;
@@ -213,7 +331,14 @@ h2 {
   background: #0c0d0e;
 }
 
+.main-surface {
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
 .workspace-ready {
+  height: 100%;
   display: grid;
   align-content: center;
   justify-items: start;
@@ -241,6 +366,64 @@ h2 {
   margin-top: 18px;
 }
 
+.workspace-error-state h2 {
+  max-width: min(760px, 100%);
+  overflow-wrap: anywhere;
+}
+
+.file-viewer {
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.file-viewer-header {
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 14px;
+  border-bottom: 1px solid #25272a;
+  color: #c7c9c6;
+  background: #111214;
+  font-size: 12px;
+}
+
+.file-viewer-header > span:first-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-viewer-mode {
+  flex: 0 0 auto;
+  color: #666b71;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.file-viewer-content {
+  min-width: 0;
+  min-height: 0;
+  flex: 1;
+  margin: 0;
+  overflow: auto;
+  padding: 18px 20px 48px;
+  color: #d4d6d2;
+  background: #0c0d0e;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  tab-size: 2;
+  white-space: pre;
+}
+
 .terminal-placeholder {
   display: flex;
   align-items: baseline;
@@ -257,10 +440,14 @@ h2 {
 
 @media (max-width: 760px) {
   .workspace-grid {
-    grid-template-columns: 190px minmax(0, 1fr);
+    grid-template-columns: 210px minmax(0, 1fr);
   }
 
   .welcome-card {
     padding: 30px;
+  }
+
+  .topbar-error {
+    display: none;
   }
 }
